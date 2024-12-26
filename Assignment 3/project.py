@@ -1,2 +1,3 @@
 import argparse
-print("hello")
+print("Input query >")
+
