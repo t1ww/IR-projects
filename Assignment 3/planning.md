@@ -31,17 +31,17 @@ Key planning
 ---
 
 ## **2. Preprocessing Text Data**
-- [ ] Load and clean the job description data.
-- [ ] Create **1-grams (unigrams)** for each document.
-- [ ] Create **2-grams (bigrams)** for each document.
-- [ ] Store these grams in a structure suitable for efficient searching (e.g., dictionaries or inverted indices).
+- [x] Load and clean the job description data.
+- [x] Create **1-grams (unigrams)** for each document.
+- [x] Create **2-grams (bigrams)** for each document.
+- [x] Store these grams in a structure suitable for efficient searching (e.g., dictionaries or inverted indices).
 
 ---
 
 ## **3. Indexing for Efficient Search**
-- [ ] Index the unigrams.
-- [ ] Index the bigrams.
-- [ ] Ensure the indices allow for efficient retrieval and scoring.
+- [x] Index the unigrams.
+- [x] Index the bigrams.
+- [x] Ensure the indices allow for efficient retrieval and scoring.
 
 ---
 
