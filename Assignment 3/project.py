@@ -1,40 +1,95 @@
 # Imports
+import re
 import string
-import argparse
-import pymc as pm
 import numpy as np
 import pandas as pd
+from nltk.corpus import stopwords
+from ordered_set import OrderedSet
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+
 
 # Functions
-def get_and_clean_data():
-    data = pd.read_csv('../Week 1/resource/software_developer_united_states_1971_20191023_1.csv')
+def get_and_clean_data(file_path):
+    data = pd.read_csv(file_path)
     description = data['job_description']
+    
+    # Remove punctuation, non-breaking spaces, and make lowercase
     cleaned_description = description.apply(lambda s: s.translate(str.maketrans('', '', string.punctuation + u'\xa0')))
     cleaned_description = cleaned_description.apply(lambda s: s.lower())
+    
+    # Normalize whitespace
     cleaned_description = cleaned_description.apply(lambda s: s.translate(str.maketrans(string.whitespace, ' '*len(string.whitespace), '')))
-    cleaned_description = cleaned_description.drop_duplicates()
+    cleaned_description = cleaned_description.drop_duplicates()  # Remove duplicates
     return cleaned_description
 
 def simple_tokenize(data):
-    cleaned_description = data.apply(lambda s: [x.strip() for x in s.split()])
-    return cleaned_description
+    # Tokenize job descriptions by splitting by whitespace
+    return data.apply(lambda s: [x.strip() for x in s.split()])
 
-def parse_job_description():
-    cleaned_description = get_and_clean_data()
-    cleaned_description = simple_tokenize(cleaned_description)
-    return cleaned_description
+def generate_ngrams(tokens, n):
+    # Generate n-grams from tokenized data
+    return [tuple(tokens[i:i+n]) for i in range(len(tokens) - n + 1)]
 
-# Executions
-# print("Input query >")
-parser = argparse.ArgumentParser(
-                    prog='ProgramName',
-                    description='What the program does',
-                    epilog='Text at the bottom of help')
+def create_ngram_index(cleaned_description):
+    # Create dictionaries to store unigrams and bigrams
+    unigram_index = {}
+    bigram_index = {}
 
-parser.add_argument('filename')           # positional argument
-parser.add_argument('-c', '--count')      # option that takes a value
-parser.add_argument('-v', '--verbose',
-                    action='store_true')  # on/off flag
+    for idx, token_list in enumerate(cleaned_description):
+        # Generate unigrams
+        unigrams = generate_ngrams(token_list, 1)
+        for unigram in unigrams:
+            if unigram not in unigram_index:
+                unigram_index[unigram] = []
+            unigram_index[unigram].append(idx)
 
-args = parser.parse_args()
-print(args.filename, args.count, args.verbose)
+        # Generate bigrams
+        bigrams = generate_ngrams(token_list, 2)
+        for bigram in bigrams:
+            if bigram not in bigram_index:
+                bigram_index[bigram] = []
+            bigram_index[bigram].append(idx)
+
+    return unigram_index, bigram_index
+
+''' Indexing with set operation '''
+def preprocess_and_stem_descriptions(cleaned_description):
+    # Replace non-alphabets with spaces, and collapse spaces
+    cleaned_description = cleaned_description.apply(lambda s: re.sub(r'[^A-Za-z]', ' ', s))
+    cleaned_description = cleaned_description.apply(lambda s: re.sub(r'\s+', ' ', s))
+
+    # Tokenize job descriptions
+    tokenized_description = cleaned_description.apply(lambda s: word_tokenize(s))
+
+    # Remove stop words
+    stop_dict = set(stopwords.words('english'))  # Specify the language
+    sw_removed_description = tokenized_description.apply(lambda s: [word for word in OrderedSet(s) if word not in stop_dict])
+    sw_removed_description = sw_removed_description.apply(lambda s: [word for word in s if len(word) > 2])  # Remove short words
+
+    # Create stem caches for efficiency
+    concated = np.unique(np.concatenate([s for s in sw_removed_description.values]))
+    stem_cache = {}
+    ps = PorterStemmer()
+    for s in concated:
+        stem_cache[s] = ps.stem(s)
+
+    # Apply stemming
+    stemmed_description = sw_removed_description.apply(lambda s: [stem_cache[w] for w in s])
+
+    return stemmed_description
+
+# Execution
+if __name__ == "__main__":
+    # Data file path
+    file_path = "../Week 1/resource/software_developer_united_states_1971_20191023_1.csv"
+    
+    # Preprocess
+    cleaned_description = get_and_clean_data(file_path)
+    stemmed_description = preprocess_and_stem_descriptions(cleaned_description)
+    
+    # Create indices
+    tokenized_data = simple_tokenize(stemmed_description)
+    unigram_index, bigram_index = create_ngram_index(tokenized_data)
+    
+    print("Indexing completed and saved to files.")

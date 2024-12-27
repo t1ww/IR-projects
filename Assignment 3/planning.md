@@ -20,10 +20,9 @@ Key planning
 - For a query input by a user, calculate the scores between it and all the documents. Then, sort all the product and display the top 5 ranks for each scoring mechanism.
 - Provide an in-depth analysis of how bm25 scoring may provide better results in certain contexts due to its sophisticated scoring mechanism.
     - See above
-
-Task Listing
-
-# Job Search CLI Application Tasks
+---
+# Task Listing
+- Job Search CLI Application Tasks
 
 ## **1. Setting Up the CLI**
 - [ ] Install and configure the `argparse` library for the command-line interface.
