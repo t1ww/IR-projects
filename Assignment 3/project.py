@@ -1,4 +1,5 @@
 # Imports
+import os
 import re
 import string
 import numpy as np
@@ -11,6 +12,7 @@ from nltk.tokenize import word_tokenize
 
 # Functions
 def get_and_clean_data(file_path):
+    print('Reading data file...')
     data = pd.read_csv(file_path)
     description = data['job_description']
     
@@ -25,7 +27,7 @@ def get_and_clean_data(file_path):
 
 def simple_tokenize(data):
     # Tokenize job descriptions by splitting by whitespace
-    return data.apply(lambda s: [x.strip() for x in s.split()])
+    return data.apply(lambda s: [x.strip() for x in s])
 
 def generate_ngrams(tokens, n):
     # Generate n-grams from tokenized data
@@ -55,18 +57,23 @@ def create_ngram_index(cleaned_description):
 
 ''' Indexing with set operation '''
 def preprocess_and_stem_descriptions(cleaned_description):
+    print('Preprocessing...')
+    print('Indexing...')
     # Replace non-alphabets with spaces, and collapse spaces
     cleaned_description = cleaned_description.apply(lambda s: re.sub(r'[^A-Za-z]', ' ', s))
     cleaned_description = cleaned_description.apply(lambda s: re.sub(r'\s+', ' ', s))
 
+    print('Tokenizing the descriptions...')
     # Tokenize job descriptions
     tokenized_description = cleaned_description.apply(lambda s: word_tokenize(s))
 
+    print('Removing stopwords...')
     # Remove stop words
     stop_dict = set(stopwords.words('english'))  # Specify the language
     sw_removed_description = tokenized_description.apply(lambda s: [word for word in OrderedSet(s) if word not in stop_dict])
     sw_removed_description = sw_removed_description.apply(lambda s: [word for word in s if len(word) > 2])  # Remove short words
 
+    print('Caching stem...')
     # Create stem caches for efficiency
     concated = np.unique(np.concatenate([s for s in sw_removed_description.values]))
     stem_cache = {}
@@ -74,14 +81,17 @@ def preprocess_and_stem_descriptions(cleaned_description):
     for s in concated:
         stem_cache[s] = ps.stem(s)
 
+    print('Applying stem...')
     # Apply stemming
     stemmed_description = sw_removed_description.apply(lambda s: [stem_cache[w] for w in s])
 
+    print('Preprocess successfully !!')
     return stemmed_description
 
 # Execution
 if __name__ == "__main__":
     # Data file path
+    print(os.getcwd())
     file_path = "../Week 1/resource/software_developer_united_states_1971_20191023_1.csv"
     
     # Preprocess
@@ -91,5 +101,3 @@ if __name__ == "__main__":
     # Create indices
     tokenized_data = simple_tokenize(stemmed_description)
     unigram_index, bigram_index = create_ngram_index(tokenized_data)
-    
-    print("Indexing completed and saved to files.")
