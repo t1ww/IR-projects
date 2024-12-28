@@ -3,6 +3,7 @@ import os
 import re
 import time
 import string
+import argparse
 import numpy as np
 import pandas as pd
 
@@ -98,11 +99,15 @@ class BM25:
 
 # Main Execution
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Search job descriptions.")
+    parser.add_argument("query", type=str, help="Search query.")
+    args = parser.parse_args()
+
     # Timer start
     start_time = time.time()
-    
-    # Data file path
-    file_path = "../Week 1/resource/software_developer_united_states_1971_20191023_1.csv"
+
+    # Fixed file path for job descriptions
+    file_path = "../Week 1/resource/software_developer_united_states_1971_20191023_1.csv"  # Update this to your actual file path
 
     # Step 1: Data Cleaning and Tokenization
     print("Reading and processing data...")
@@ -120,35 +125,33 @@ if __name__ == "__main__":
     # Step 4: TF-IDF Application
     tfidf_vectorizer, tfidf_df = apply_tfidf(cleaned_data)
 
+    # Calculate TF-IDF scores for query
+    query_tfidf_vector = tfidf_vectorizer.transform([args.query]).toarray()
+    tfidf_scores = tfidf_df.dot(query_tfidf_vector.T).values.flatten()
+
     # Step 5: BM25 Calculation
     bm25 = BM25(tfidf_vectorizer)
     bm25.fit(cleaned_data)
-    
-    # Example Query
-    query = 'cloud computing'
-    bm25_scores = bm25.transform(query)
 
-    # Step 6: Combine BM25 and N-Gram Matches
-    print("Combining BM25 scores with n-gram matches...")
-    query_tokens = query.split()
-    unigram_matches = set().union(*(unigram_index.get((token,), []) for token in query_tokens))
-    bigram_matches = set().union(*(bigram_index.get(bigram, []) for bigram in generate_ngrams(query_tokens, 2)))
+    bm25_scores = bm25.transform(args.query)
 
-    results = pd.DataFrame({
+    # Top Rankings for Each Mechanism
+    tfidf_results = pd.DataFrame({'TFIDF_Score': tfidf_scores}).sort_values(by='TFIDF_Score', ascending=False).head(5)
+    bm25_results = pd.DataFrame({'BM25_Score': bm25_scores}).sort_values(by='BM25_Score', ascending=False).head(5)
+
+    # Display Results
+    print("------ TF-IDF Top Results ------")
+    print(tfidf_results)
+
+    print("------ BM25 Top Results ------")
+    print(bm25_results)
+
+    # Combine Scores and Display
+    combined_scores = pd.DataFrame({
         'BM25_Score': bm25_scores,
-        'Unigram_Match': [int(idx in unigram_matches) for idx in range(len(cleaned_data))],
-        'Bigram_Match': [int(idx in bigram_matches) for idx in range(len(cleaned_data))]
-    })
+        'TFIDF_Score': tfidf_scores,
+        'Combined_Score': tfidf_scores + bm25_scores,
+    }).sort_values(by='Combined_Score', ascending=False)
 
-    results['Combined_Score'] = results.sum(axis=1)
-    results = results.sort_values(by='Combined_Score', ascending=False)
-
-    # Output
-    print('------ OUTPUT ------')
-    print('Top Results:')
-    print(results.head())
-    
-    # End timer
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f'Runtime executed : {elapsed_time}')
+    print("------ Combined Top Results ------")
+    print(combined_scores.head(5))
