@@ -25,8 +25,8 @@ Key planning
 - Job Search CLI Application Tasks
 
 ## **1. Setting Up the CLI**
-- [ ] Install and configure the `argparse` library for the command-line interface.
-- [ ] Create a CLI application that accepts a search query as input.
+- [x] Install and configure the `argparse` library for the command-line interface.
+- [x] Create a CLI application that accepts a search query as input.
 
 ---
 
@@ -46,27 +46,28 @@ Key planning
 ---
 
 ## **4. Implementing Scoring Mechanisms**
-- [ ] Implement the **TF-IDF scoring function**.
-- [ ] Implement the **BM25 scoring function**.
+- [x] Implement the **TF-IDF scoring function**.
+- [x] Implement the **BM25 scoring function**.
 
 ---
 
 ## **5. Query Processing and Ranking**
-- [ ] Accept a query input from the user through the CLI.
-- [ ] Preprocess the query to generate unigrams and bigrams.
-- [ ] Calculate scores for the query against all documents using **TF-IDF**.
-- [ ] Calculate scores for the query against all documents using **BM25**.
-- [ ] Sort and display the **top 5 ranked documents** for each scoring mechanism.
+- [x] Accept a query input from the user through the CLI.
+- [x] Preprocess the query to generate unigrams and bigrams.
+- [x] Calculate scores for the query against all documents using **TF-IDF**.
+- [x] Calculate scores for the query against all documents using **BM25**.
+- [x] Sort and display the **top 5 ranked documents** for each scoring mechanism.
 
 ---
 
 ## **6. In-depth Analysis of BM25**
-- [ ] **Example Query Where BM25 Performs Better**:
-  - [ ] Provide an example query where BM25 gives better results.
-  - [ ] Explain why BM25 performed better in this case (e.g., considering term frequency saturation, document length normalization).
-- [ ] **Example Query Where BM25 Performs Worse**:
-  - [ ] Provide an example query where BM25 gives worse results.
-  - [ ] Explain why BM25 performed worse in this case (e.g., due to short query terms or overly normalized results).
+> Written in Ans.md
+- [x] **Example Query Where BM25 Performs Better**:
+  - [x] Provide an example query where BM25 gives better results.
+  - [x] Explain why BM25 performed better in this case (e.g., considering term frequency saturation, document length normalization).
+- [x] **Example Query Where BM25 Performs Worse**:
+  - [x] Provide an example query where BM25 gives worse results.
+  - [x] Explain why BM25 performed worse in this case (e.g., due to short query terms or overly normalized results).
 
 ---
 

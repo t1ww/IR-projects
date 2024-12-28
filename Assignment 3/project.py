@@ -126,6 +126,7 @@ if __name__ == "__main__":
     tfidf_vectorizer, tfidf_df = apply_tfidf(cleaned_data)
 
     # Calculate TF-IDF scores for query
+    query_timer = time.time() # Timer for query
     query_tfidf_vector = tfidf_vectorizer.transform([args.query]).toarray()
     tfidf_scores = tfidf_df.dot(query_tfidf_vector.T).values.flatten()
 
@@ -155,3 +156,9 @@ if __name__ == "__main__":
 
     print("------ Combined Top Results ------")
     print(combined_scores.head(5))
+
+    # End timer
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f'Runtime executed: {elapsed_time}')
+    print(f'Query time: {time.time() - query_timer}')
