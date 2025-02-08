@@ -83,7 +83,7 @@ const highlightText = (text: string, query: string) => {
       </div>
       <ul class="scrollable">
         <li v-for="result in resultsBM25" :key="result.url">
-          <h3>{{ result.title }}</h3>
+          <a target="_blank" :href="result.url" class="title">{{ result.title }}</a>
           <p v-html="highlightText(result.text, query)"></p>
         </li>
       </ul>
@@ -97,7 +97,7 @@ const highlightText = (text: string, query: string) => {
       </div>
       <ul class="scrollable">
         <li v-for="result in resultsTFIDF" :key="result.url">
-          <h3>{{ result.title }}</h3>
+          <a target="_blank" :href="result.url" class="title">{{ result.title }}</a>
           <p v-html="highlightText(result.text, query)"></p>
         </li>
       </ul>
@@ -110,6 +110,10 @@ const highlightText = (text: string, query: string) => {
 </template>
 
 <style scoped>
+input {
+  width: 70%;
+}
+
 .credits { color: #888; }
 .error { color: red; }
 
@@ -125,6 +129,7 @@ const highlightText = (text: string, query: string) => {
   border: 1px solid #ddd;
   padding: 10px;
   border-radius: 8px;
+  text-align: left;
   background: #f9f9f9;
   display: flex;
   flex-direction: column;
@@ -171,8 +176,26 @@ h3 {
 }
 
 p {
+  color: rgb(151, 120, 120);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.results-column p {
   color: black;
   font-size: 0.9rem;
   text-align: left;
+}
+
+/* Apply the .title color */
+.title {
+  color: rgb(55, 82, 75);
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.title:hover {
+  color: #0099cc; /* Change color on hover */
 }
 </style>
