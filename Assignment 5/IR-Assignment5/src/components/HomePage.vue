@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+
+// Define the structure of individual result data
 interface web_data {
-    score: number
-    url: string
-    text: string
-    title: string
+  score: number;
+  url: string;
+  text: string;
+  title: string;
 }
-interface response {
-  elapse: number
-  results: web_data[]
-}
+
 // Define props
 defineProps<{ msg: string }>()
 
 // Reactive variables
 const query = ref('')
-const resultsBM25 = ref<response[]>([]) // Left side: BM25 + PageRank
-const resultsTFIDF = ref<response[]>([]) // Right side: TF-IDF + PageRank
+const resultsBM25 = ref<web_data[]>([]) // Left side: BM25 + PageRank
+const resultsTFIDF = ref<web_data[]>([]) // Right side: TF-IDF + PageRank
 const loading = ref(false)
 const error = ref('')
 const timeTaken = ref(0)
@@ -50,7 +49,6 @@ const fetchResults = async () => {
   }
 }
 
-
 // Auto-fetch when `query` changes
 watch(query, fetchResults)
 
@@ -79,22 +77,28 @@ const highlightText = (text: string, query: string) => {
   <div v-if="resultsBM25.length || resultsTFIDF.length" class="results-container">
     <!-- Left Side: BM25 + PageRank -->
     <div class="results-column">
-      <h2>BM25 + PageRank</h2>
-      <ul>
-        <li v-for="result in resultsBM25" :key="result.id">
+      <div class="results-header">
+        <span>{{ resultsBM25.length }} results in {{ timeTaken }}s</span>
+        <h2>BM25 + PageRank</h2>
+      </div>
+      <ul class="scrollable">
+        <li v-for="result in resultsBM25" :key="result.url">
           <h3>{{ result.title }}</h3>
-          <p v-html="highlightText(result.snippet)"></p>
+          <p v-html="highlightText(result.text, query)"></p>
         </li>
       </ul>
     </div>
 
     <!-- Right Side: TF-IDF + PageRank -->
     <div class="results-column">
-      <h2>TF-IDF + PageRank</h2>
-      <ul>
-        <li v-for="result in resultsTFIDF" :key="result.id">
+      <div class="results-header">
+        <span>{{ resultsTFIDF.length }} results in {{ timeTaken }}s</span>
+        <h2>TF-IDF + PageRank</h2>
+      </div>
+      <ul class="scrollable">
+        <li v-for="result in resultsTFIDF" :key="result.url">
           <h3>{{ result.title }}</h3>
-          <p v-html="highlightText(result.snippet)"></p>
+          <p v-html="highlightText(result.text, query)"></p>
         </li>
       </ul>
     </div>
@@ -122,15 +126,38 @@ const highlightText = (text: string, query: string) => {
   padding: 10px;
   border-radius: 8px;
   background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.results-header span {
+  font-size: 0.9rem;
+  color: #444;
 }
 
 h2 {
   color: #444;
+  margin: 0;
+  font-size: 1.1rem;
 }
 
 ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.scrollable {
+  max-height: 400px; /* Adjust this as needed */
 }
 
 li {
@@ -139,11 +166,13 @@ li {
 
 h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  color: black;
 }
 
 p {
-  color: #666;
+  color: black;
   font-size: 0.9rem;
+  text-align: left;
 }
 </style>
