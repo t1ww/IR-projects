@@ -29,8 +29,8 @@ const fetchResults = async () => {
 
   try {
     const [bm25Response, tfidfResponse] = await Promise.all([
-      fetch(`http://localhost:5000/search_es_pr?query=${query.value}`).then(res => res.json()),
-      fetch(`http://localhost:5000/search_manual_pr?query=${query.value}`).then(res => res.json())
+      fetch(`http://localhost:5000/search_manual_pr?query=${query.value}`).then(res => res.json()),
+      fetch(`http://localhost:5000/search_custom_tfidf?query=${query.value}`).then(res => res.json())
     ])
 
     console.log("BM25 Response:", bm25Response)  // Debugging
