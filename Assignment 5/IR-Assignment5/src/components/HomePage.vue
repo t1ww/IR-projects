@@ -18,7 +18,8 @@ const resultsBM25 = ref<web_data[]>([]) // Left side: BM25 + PageRank
 const resultsTFIDF = ref<web_data[]>([]) // Right side: TF-IDF + PageRank
 const loading = ref(false)
 const error = ref('')
-const timeTaken = ref(0)
+const timeTakenbm25 = ref(0)
+const timeTakentfidf = ref(0)
 
 // Function to fetch API data for both search methods
 const fetchResults = async () => {
@@ -41,7 +42,8 @@ const fetchResults = async () => {
     resultsTFIDF.value = tfidfResponse.results ?? []
     
     // Capture the time taken
-    timeTaken.value = bm25Response.elapse ?? tfidfResponse.elapse ?? 0
+    timeTakenbm25.value = bm25Response.elapse ?? 0
+    timeTakentfidf.value = tfidfResponse.elapse ?? 0
   } catch (err) {
     error.value = (err as Error).message
   } finally {
@@ -71,14 +73,14 @@ const highlightText = (text: string, query: string) => {
   <p v-if="loading">Loading...</p>
   <p v-if="error" class="error">{{ error }}</p>
   <p v-if="!loading && (resultsBM25.length || resultsTFIDF.length)">
-    Found {{ resultsBM25.length + resultsTFIDF.length }} results in {{ timeTaken }}s
+    Found {{ resultsBM25.length + resultsTFIDF.length }} results
   </p>
 
   <div v-if="resultsBM25.length || resultsTFIDF.length" class="results-container">
     <!-- Left Side: BM25 + PageRank -->
     <div class="results-column">
       <div class="results-header">
-        <span>{{ resultsBM25.length }} results in {{ timeTaken }}s</span>
+        <span>{{ resultsBM25.length }} results in {{ timeTakenbm25 }}s</span>
         <h2>BM25 + PageRank</h2>
       </div>
       <ul class="scrollable">
@@ -92,7 +94,7 @@ const highlightText = (text: string, query: string) => {
     <!-- Right Side: TF-IDF + PageRank -->
     <div class="results-column">
       <div class="results-header">
-        <span>{{ resultsTFIDF.length }} results in {{ timeTaken }}s</span>
+        <span>{{ resultsTFIDF.length }} results in {{ timeTakentfidf }}s</span>
         <h2>TF-IDF + PageRank</h2>
       </div>
       <ul class="scrollable">
